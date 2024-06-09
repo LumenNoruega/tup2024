@@ -33,6 +33,5 @@ public class ClienteDao extends AbstractBaseDao{
 
     @Override
     protected String getEntityName() {
-        return "CLIENTE";
-    }
+        return "CLIENTE";}
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClienteService {
 
-    ClienteDao clienteDao;
+    private ClienteDao clienteDao;
 
     public ClienteService(ClienteDao clienteDao) {
         this.clienteDao = clienteDao;
@@ -35,21 +35,21 @@ public class ClienteService {
         clienteDao.save(cliente);
     }
 
-    public void agregarCuenta(Cuenta cuenta, long dniTitular) throws TipoCuentaAlreadyExistsException {
-        Cliente titular = buscarClientePorDni(dniTitular);
-        cuenta.setTitular(titular);
-        if (titular.tieneCuenta(cuenta.getTipoCuenta(), cuenta.getMoneda())) {
-            throw new TipoCuentaAlreadyExistsException("El cliente ya posee una cuenta de ese tipo y moneda");
+    public void agregarCuenta(Cuenta cuenta, long dni) throws ClienteAlreadyExistsException, TipoCuentaAlreadyExistsException {
+        Cliente cliente = clienteDao.find(dni, false);
+        if (cliente == null) {
+            throw new ClienteAlreadyExistsException("Cliente no encontrado");
         }
-        titular.addCuenta(cuenta);
-        clienteDao.save(titular);
+
+        if (cliente.tieneCuenta(cuenta.getTipoCuenta(), cuenta.getMoneda())) {
+            throw new TipoCuentaAlreadyExistsException("El cliente ya tiene una cuenta de este tipo y moneda");
+        }
+        cliente.addCuenta(cuenta);
+        clienteDao.save(cliente);
     }
 
     public Cliente buscarClientePorDni(long dni) {
         Cliente cliente = clienteDao.find(dni, true);
-        if(cliente == null) {
-            throw new IllegalArgumentException("El cliente no existe");
-        }
         return cliente;
     }
 }
